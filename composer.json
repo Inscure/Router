@@ -1,0 +1,8 @@
+{
+    "name": "inscure/router",
+    "autoload": {
+        "psr-4": {
+            "Router\\": "src"
+        }
+    }
+}
