@@ -6,12 +6,17 @@ class Router
 {
     private static $instance;
     
+    private $path;
+    
     private function __construct() 
     {}
     
     private function __clone()
     {}
     
+    /**
+     * @return self
+     */
     public static function getInstance()
     {
         if (! self::$instance) {
@@ -19,6 +24,25 @@ class Router
         }
         
         return self::$instance;
+    }
+    
+    public function setRoutesPath($path)
+    {
+        $this->path = $path;
+    }
+    
+    public function getRoute()
+    {
+        $matches = array();
+        foreach(include $this->path as $route) {
+            if (preg_match($route['regex'], substr($this->getPathInfo(), 1), $matches)) {
+                if ($route['method'] == 'any' || strtolower($route['method']) == strtolower($this->getRequestMethod())) {
+                    return $route + array('matches' => $matches);
+                }
+            }
+        }
+        
+        throw new \Exception('Wrong uri.');
     }
     
     protected function getUri()
@@ -36,18 +60,7 @@ class Router
         return filter_input(INPUT_SERVER, 'REQUEST_METHOD');
     }
     
-    public function getRoute()
-    {
-        foreach(include __DIR__ . '/../app/routes.php' as $route) {
-            if (preg_match('/' . $route['regex'] . '/', $this->getPathInfo())) {
-                if ($route['method'] == 'any' || strtolower($route['method']) == strtolower($this->getRequestMethod())) {
-                    return $route;
-                }
-            }
-        }
-        
-        throw new \Exception('Wrong uri.');
-    }
+    
 }
 
 
